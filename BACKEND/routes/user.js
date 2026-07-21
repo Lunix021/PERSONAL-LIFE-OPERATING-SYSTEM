@@ -1,0 +1,111 @@
+const express=require('express');
+const User=require('../models/User')
+const router=express.Router();
+const bcrypt=require('bcrypt');
+const jwt =require('jsonwebtoken');
+const auth=require('../middleware/auth')
+
+
+
+
+//CHECK IF USER LOGGED IN OR NOT
+router.get("/me",auth,async(req,res)=>{
+
+    const user=await User.findById(req.user.id);
+
+    res.json(user);
+
+});
+
+
+
+
+
+// USER REGISTRATION
+router.post('/register',async (req,res)=>{
+try{
+const exist = await User.findOne({ email: req.body.email });
+
+if(req.body.pwd!==req.body.confirmpwd){ return res.status(401).send("PASSWORD AND CONFIRM PASSWORD DIDNT MATCH")}
+
+if( req.body.name && req.body.pwd.length>4 && req.body.email &&  !exist)
+{
+const hashedPassword = await bcrypt.hash(req.body.pwd, 10);
+await User.create({...req.body,pwd: hashedPassword});
+res.status(201).send("USER CREATED SUCCESSFULLY");
+}
+    else {
+        res.status(409).send("EITHER USER ALREADY EXISTS OR U DIDNT GIVE ALL REQUIRED INFORMATION");
+    }
+}
+    catch(err){
+        res.status(500).send(err.message);
+    }
+});
+
+
+
+
+
+//LOGIN A USER
+router.post('/login',async (req,res)=>{
+ try{
+const exist = await User.findOne({ email: req.body.email });
+    if(exist)
+       {
+        if(await bcrypt.compare(req.body.pwd,exist.pwd)){
+            const token=jwt.sign(
+                {
+                    id:exist._id
+                },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn:"7d"
+                }
+            );
+
+            res.cookie("token", token, { httpOnly:true,secure:false,sameSite:"lax",maxAge:7*24*60*60*1000});
+
+res.status(201).json({
+    msg:"LOGIN SUCCESS"
+});
+        }
+        else{
+            res.status(401).send("PASSWORD INCORRECT");
+        }
+       }
+    else {
+        res.status(401).send("USER DOES NOT EXISTS , PLEASE REGISTER FIRST");
+    }
+ }
+ catch(err){
+    res.status(500).send(err.message);
+ }
+});
+
+
+
+
+//LOGOUT A USER
+router.post('/logout',auth,async (req,res)=>{
+ res.clearCookie("token",{
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false
+});
+res.send("Logged out");
+});
+
+
+
+
+//GET A USER
+router.get('/profile',auth,async (req,res)=>{
+ res.status(201).send(await User.findById(req.user.id));
+});
+
+
+
+
+
+module.exports=router;

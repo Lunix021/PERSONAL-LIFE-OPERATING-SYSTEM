@@ -9,7 +9,7 @@ router.post('/add',auth,async (req,res)=>{
         if(req.body.text?.trim())
     {
         const task=await Task.create({...req.body,user:req.user.id});
-    res.status(201).send("TASK ADDED SUCCESSFULLY MF");
+    res.status(201).json({msg:"TASK ADDED SUCCESSFULLY MF",task:task});
 }
         else{
             res.status(404).send("ENTER THE TASK");
@@ -28,7 +28,8 @@ router.post('/add',auth,async (req,res)=>{
 router.delete('/delete',auth,async (req,res)=>{
             try{
                    await Task.deleteMany({user:req.user.id,checked:true})
-                   res.status(200).send("TASK DELETED SUCCESSFULLY");
+                   const task= await Task.find({user:req.user.id});
+                   res.status(200).json({msg:"TASK DELETED SUCCESSFULLY",task:task});
             }
              catch(err){
         res.status(500).send(err.message);
@@ -40,8 +41,10 @@ router.delete('/delete',auth,async (req,res)=>{
 //CHANGE VALUE OF CHECKBOX
 router.patch('/:id',auth,async (req,res)=>{
             try{
-                   await Task.findOneAndUpdate({_id:req.params.id,user:req.user.id},{checked:req.body.checked});
-                   res.status(200).send("BOOLEAN COMPLEMENTED DIGGA");
+                   const task=await Task.findOne({_id:req.params.id,user:req.user.id});
+                   task.checked=!task.checked;
+                   await task.save();
+                    res.status(200).json({msg:"BOOLEAN COMPLEMENTED DIGGA",task:task});
             }
              catch(err){
         res.status(500).send(err.message);
@@ -54,7 +57,7 @@ router.patch('/:id',auth,async (req,res)=>{
 // GET ALL TASKS OF A USER
 router.get('/tasks',auth,async(req,res)=>{
     try{      const tasks= await Task.find({user:req.user.id});
-                   res.status(200).send("ALL TASKS FOUND");
+                   res.status(200).json({msg:"ALL TASKS FOUND",task:tasks});
             }
              catch(err){
         res.status(500).send(err.message);

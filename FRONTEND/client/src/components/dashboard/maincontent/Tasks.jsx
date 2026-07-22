@@ -1,46 +1,99 @@
-import React, { useState } from 'react'
-
-function Tasks() {
-  const [task, settask] = useState([
-    { id: 1, text: "Finish MERN", checked: false },
-    { id: 2, text: "Morning Run", checked: false },
-    { id: 3, text: "20 page reading", checked: false },
-  ]);
-
+import React, { useState,useEffect } from 'react'
+import api from '../../../api/axios'
+function Tasks({user}) {
+ 
   const [showModal, setShowModal] = useState(false);
   const [val, setVal] = useState("");
-  const [nextId, setNextId] = useState(4);
+const [allTasks, setAllTasks] = useState([]);
 
-  const addtask = () => {
+
+// ADD TASK
+  const addtask = async () => {
+
     if (val.trim() === "") return;
 
-    settask([
-      ...task,
-      {
-        id: nextId,
-        text: val,
-        checked: false,
-      },
-    ]);
+    const newTask = {
+    text: val,
+    checked: false
+};
 
-    setNextId(nextId + 1);
+try{
+
+    const res=await api.post('/task/add',newTask);
+
+    console.log(res.data);
+
+    setAllTasks(prev=>[...prev,res.data.task])
+
+    }
+     catch (err) {
+        console.log(err.response.data);
+    }
+
     setVal("");
+
     setShowModal(false);
+
   };
 
-  const deltask = () => {
-    settask(task.filter((t) => !t.checked));
+
+
+  //DELETE TASK
+  const deltask = async() => {
+    
+try{
+
+    const res=await api.delete('/task/delete');
+   
+    console.log(res.data);
+
+    setAllTasks(res.data.task);
+
+    }
+     catch (err) {
+        console.log(err.response.data);
+    }
+
   };
 
-  const togchk = (id) => {
-    settask(
-      task.map((t) => {
-        if (t.id === id) {
-          return { ...t, checked: !t.checked };
+
+
+
+  //GETTING ALL TASKS
+  useEffect(() => {
+    const getTasks = async () => {
+      try{
+        const res = await api.get("/task/tasks");
+        setAllTasks(res.data.task);
+      }
+        catch(err){
+          console.log(err.response.data);
         }
-        return t;
-      })
-    );
+    };
+
+    getTasks();
+}, []);
+
+
+
+
+
+
+  //UPDATE CHECKBOX
+  const togchk =async (id) => {
+    try{
+
+    const res=await api.patch(`/task/${id}`);
+    console.log(res.data);
+    setAllTasks(prev=>(prev.map(t =>
+    t._id === res.data.task._id ? res.data.task : t)))
+
+    }
+     catch (err) {
+        console.log(err.response.data);
+    }
+
+    
   };
 
   return (
@@ -55,17 +108,17 @@ function Tasks() {
           </h1>
 
           <span className="text-sm text-gray-400">
-            {task.length} Tasks
+            {allTasks.length} Tasks
           </span>
         </div>
 
      
         <ul className="space-y-3 max-h-60 overflow-y-auto">
 
-          {task.map((task) => (
+          {allTasks.map((task) => (
 
             <li
-              key={task.id}
+              key={task._id}
               className="flex justify-between items-center bg-slate-800 rounded-lg p-3 hover:bg-slate-700 transition"
             >
 
@@ -74,7 +127,7 @@ function Tasks() {
                 <input
                   type="checkbox"
                   checked={task.checked}
-                  onChange={() => togchk(task.id)}
+                  onChange={() => togchk(task._id)}
                   className="w-5 h-5 accent-green-500 cursor-pointer"
                 />
 

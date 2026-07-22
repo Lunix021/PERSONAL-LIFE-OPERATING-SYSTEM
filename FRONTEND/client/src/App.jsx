@@ -16,31 +16,34 @@ import api from './api/axios.js';
 
 function App() {
 
-
-  const [loggedin,setLoggedin]=useState(false);
+const [user, setUser] = useState(null);
 
 
   useEffect(()=>{
-const checkAuth=async()=>{try{
- await api.get('/user/me');
- setLoggedin(true);
+const checkAuth=async()=>{
+  try{
+const res = await api.get("/user/me");
+setUser(res.data);
+console.log( res.data);
 }
 catch(err){
- setLoggedin(false);
+ setUser(null);
+ 
+ console.log(err.response.data);
 }}
 
 checkAuth();
 
 },[]);
 
-
   return (
   
   <div>
 
-{(!loggedin)?
+{(!user)?
 (  <div className='min-h-screen'>
     <Routes>
+  <Route path='/' element={<Login />}></Route>
   <Route path='/login' element={<Login />}></Route>
   <Route path='/register' element={<Register/>}></Route>
   </Routes>
@@ -54,12 +57,12 @@ checkAuth();
 
         <main className="flex-1">
         <Routes>
-      <Route path='/dashboard'  element={<Dashboard/>}></Route>
-      <Route path='/calendar' element={<Calendar/>}></Route>
-      <Route path='/finance' element={<Finance/>}></Route>
-      <Route path='/fitness' element={<Fitness/>}></Route>
-      <Route path='/settings' element={<Settings/>}></Route>
-      <Route path='/study' element={<Study/>}></Route>
+      <Route path='/dashboard'  element={<Dashboard user={user}/>}></Route>
+      <Route path='/calendar' element={<Calendar user={user}/>}></Route>
+      <Route path='/finance' element={<Finance user={user}/>}></Route>
+      <Route path='/fitness' element={<Fitness user={user}/>}></Route>
+      <Route path='/settings' element={<Settings user={user}/>}></Route>
+      <Route path='/study' element={<Study user={user}/>}></Route>
        
     </Routes>
         </main>

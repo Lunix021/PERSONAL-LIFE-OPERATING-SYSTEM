@@ -10,6 +10,7 @@ require('dotenv').config();
         const payld=jwt.verify(token,process.env.JWT_SECRET);
 
         req.user=payld;
+
         next();
 
     }

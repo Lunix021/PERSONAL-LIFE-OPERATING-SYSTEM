@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from 'react'
 import api from '../../../api/axios'
-function Tasks({user}) {
+function Tasks() {
  
   const [showModal, setShowModal] = useState(false);
   const [val, setVal] = useState("");

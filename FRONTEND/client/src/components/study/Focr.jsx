@@ -1,6 +1,16 @@
 import React from 'react'
 import { useState } from 'react';
-function Focr({fscr}) {
+function Focr({fscr,data}) {
+
+
+function getText() {
+  if (fscr > 38 && fscr<=70) {
+    return "Good Score : HUH, JUST AVERAGE";
+  }
+  else if(fscr > 70 && fscr<=100){return "EXCELLENT SCORE NIGGA"}
+  return "Low Score : GO AND FKING GRIND ";
+}
+
   
   return (
     <div className='bg-slate-900/70 border border-white/10 w-2/5 backdrop-blur-xl shadow-2xl p-6 rounded-2xl space-y-6 '>
@@ -14,11 +24,12 @@ function Focr({fscr}) {
 
 <div className='space-y-6'>
   <h1 className='bg-linear-to-r from-green-600 to-blue-500 bg-clip-text text-transparent text-2xl'>
-  Excellent Focus Today!
+    {getText()}
+ 
   </h1>
 
   <h1 className="bg-linear-to-br from-red-500 to-amber-500 bg-clip-text text-transparent text-2xl">
-    🔥 5 Day Streak  
+    🔥 {data.streak} Day Streak  
   </h1>
 </div>
 

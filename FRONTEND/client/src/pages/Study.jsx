@@ -13,16 +13,20 @@ import { useEffect } from 'react';
 
 function Study() {
 
-
+const [data,setdata]=useState({
+  weeklyHours: [],
+  streak: 0,
+  completedGoals: 0,
+  bestDay: "",
+  total: 0});
 
   const [toal, settoal] = useState(0);
 
-  const [sub, setsub] = useState([]
-  );
+  const [sub, setsub] = useState([]);
 
    const [goal, setgoal] = useState(0);
 
-  const [currentSubject, setCurrentSubject] = useState(sub[0]?.id || null);
+  const [currentSubject, setCurrentSubject] = useState(sub[0]?._id || null);
 
   const [sessions, setSessions] = useState([]);
 
@@ -38,9 +42,7 @@ const calculateFocusScore = (toal, goal, sessions) => {
     return Math.round(timeScore + sessionScore);
 };
 
-const [studyHistory,setStudyHistory] = useState([
 
-]);//was gonna store day,totaltime,sessions otehr thigns for streaks,weekly analytics , some oterh things but we will do this later
 
 
 
@@ -57,23 +59,23 @@ const [studyHistory,setStudyHistory] = useState([
 
       <div className='flex gap-2'>
 
-        <Dap toal={toal} goal={goal} setgoal={setgoal} />
+        <Dap toal={toal} settoal={settoal} goal={goal} setgoal={setgoal} sessions={sessions} />
 
-        <Timer settoal={settoal} sub={sub} setSessions={setSessions} currentSubject={currentSubject} setCurrentSubject={setCurrentSubject} sessions={sessions}/>
+        <Timer settoal={settoal} sub={sub} setSessions={setSessions} currentSubject={currentSubject} setCurrentSubject={setCurrentSubject} sessions={sessions} setdata={setdata}/>
 
       </div>
 
       <div className='flex gap-2'>
 
-        <Focr fscr={calculateFocusScore(toal,goal,sessions)}/>
+        <Focr fscr={calculateFocusScore(toal,goal,sessions)} data={data} />
 
         <Tos setsub={setsub} sub={sub} />
 
       </div>
 
-      <Tss sub={sub} sessions={sessions} />
+      <Tss sub={sub} sessions={sessions} setSessions={setSessions} />
 
-      <Westan />
+      <Westan data={data} setdata={setdata}/>
 
 
 

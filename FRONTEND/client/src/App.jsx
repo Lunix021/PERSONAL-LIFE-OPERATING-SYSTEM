@@ -57,7 +57,7 @@ checkAuth();
 
         <main className="flex-1">
         <Routes>
-      <Route path='/dashboard'  element={<Dashboard user={user}/>}></Route>
+      <Route path='/dashboard'  element={<Dashboard/>}></Route>
       <Route path='/calendar' element={<Calendar user={user}/>}></Route>
       <Route path='/finance' element={<Finance user={user}/>}></Route>
       <Route path='/fitness' element={<Fitness user={user}/>}></Route>

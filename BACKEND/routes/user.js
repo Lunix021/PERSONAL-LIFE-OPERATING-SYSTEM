@@ -105,7 +105,19 @@ router.get('/profile',auth,async (req,res)=>{
 });
 
 
+// ADD DETAILS FOR A USER
+router.post('/update',auth,async(req,res)=>{
+    try {
+       await User.findByIdAndUpdate(req.user.id,{
+        "preferences.studyGoal": req.body.goal
+    });
 
+        res.status(200).send("GOAL SET BABAM BABAM")
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+    
+})
 
 
 module.exports=router;

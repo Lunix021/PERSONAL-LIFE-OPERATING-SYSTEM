@@ -1,42 +1,89 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import api from '../../api/axios';
+
 
 function Tos({setsub,sub}) {
  
      const [showModal, setShowModal] = useState(false);
       const [val, setVal] = useState("");
-      const [nextId, setNextId] = useState(4);
+
+
+
+      //GET ALL SUBJECTS
+      useEffect(()=>{
+        const getSubjects=async()=>{
+           try {
+ const res=await api.get('/study/subjects');
+ console.log(res.data);
+ setsub(res.data.subs);           
+           }
+            catch (err) {
+            console.log(err.response.data);
+           }
+        }
+
+        getSubjects();
+      },[]);
     
-      const addsub = () => {
+
+
+
+      //ADD SUBJECT
+      const addsub = async () => {
         if (val.trim() === "") return;
-    
-        setsub([
-          ...sub,
-          {
-            id: nextId,
-            text: val,
-            checked: false,
-          },
-        ]);
-    
-        setNextId(nextId + 1);
+
+         try {
+   const res= await api.post('/study/addsub',{name:val,checked:false});
+    console.log(res.data);
+        
+    setsub(prev=>[...prev,res.data.sub]);
+
+           }
+            catch (err) {
+            console.log(err.response.data);
+           }
+
         setVal("");
         setShowModal(false);
       };
-    
-      const delsub = () => {
-        setsub(sub.filter((t) => !t.checked));
+
+
+
+
+    //DELETE SUBJECT
+      const delsub = async () => {
+        try {
+          const res=await api.delete('/study/deletesub');
+          console.log(res.data);
+          setsub(res.data.sub);
+        } catch (err) {
+           console.log(err.response.data);
+        }
       };
     
-      const togchk = (id) => {
-        setsub(
-          sub.map((t) => {
-            if (t.id === id) {
-              return { ...t, checked: !t.checked };
-            }
-            return t;
-          })
-        );
+
+
+      //TOGGLE CHECKBOX
+      const togchk = async (id) => {
+         try {
+
+           const res=await api.patch(`/study/${id}`);
+
+          console.log(res.data);
+
+          setsub(prev =>
+    prev.map(s =>
+        s._id === res.data.sub._id ? res.data.sub : s
+    )
+);
+        } catch (err) {
+           console.log(err.response.data);
+        }
+       
       };
+
+
+
   return (
     <>
     <div className='bg-slate-900/70 border border-white/10 w-3/5 backdrop-blur-xl shadow-2xl p-6 rounded-2xl space-y-10'>
@@ -52,7 +99,7 @@ function Tos({setsub,sub}) {
           {sub.map((sub) => (
 
             <li
-              key={sub.id}
+              key={sub._id}
               className="flex justify-between items-center bg-slate-800 rounded-lg p-3 hover:bg-slate-700 transition"
             >
 
@@ -61,7 +108,7 @@ function Tos({setsub,sub}) {
                 <input
                   type="checkbox"
                   checked={sub.checked}
-                  onChange={() => togchk(sub.id)}
+                  onChange={() => togchk(sub._id)}
                   className="w-5 h-5 accent-green-500 cursor-pointer"
                 />
 
@@ -72,7 +119,7 @@ function Tos({setsub,sub}) {
                       : "text-white"
                   }`}
                 >
-                  {sub.text.toUpperCase()}
+                  {sub.name.toUpperCase()}
                 </p>
 
               </div>

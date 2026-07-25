@@ -1,36 +1,152 @@
 import React, { useState,useRef,useEffect } from 'react';
+import api from '../../api/axios';
 
 
+function Timer({settoal,sub,setSessions,currentSubject,setCurrentSubject,sessions,setdata}) {
 
-function Timer({settoal,sub,setSessions,currentSubject,setCurrentSubject,sessions}) {
-
+const intervalRef = useRef(null);
 
 const [elap,setelap]=useState(0);
 
 const [cl,setcl]=useState(true);
 
-const id = useRef(null);
-
-const sessionId = useRef(null);
-
 const timr=()=>{
      
-    id.current= setInterval(()=>{setelap(elap=>elap+1); 
+   intervalRef.current= setInterval(()=>{
+    setelap(elap=>elap+1000); 
         settoal(prev=>prev+1);
         },1000);
+
 };
+
 
 useEffect(() => {
     if (sub.length > 0 && currentSubject === null) {
-        setCurrentSubject(sub[0].id);
+        setCurrentSubject(sub[0]._id);
     }
 }, [sub]); 
 
 
 
-const hour=Math.floor(elap/3600);
-const min=Math.floor((elap % 3600) / 60);
-const sec=elap%60;
+
+
+
+
+
+
+
+// CREATING A  NEW SESSION
+const newSession= async ()=>{
+
+try {
+    const res=await api.post('/study/session/start',{subId:currentSubject});
+    console.log(res.data);
+    setSessions(prev=>[...prev,res.data.session]);
+    timr(); 
+
+setcl(false);
+
+
+} catch (err) {
+    console.log(err.response.data);
+}
+ 
+}
+
+
+
+
+//PAUSE A SESSION
+const pauseSession = async ()=>{
+    try {
+    const res=await api.patch('/study/session/end');
+    console.log(res.data);
+    setcl(true);
+ clearInterval(intervalRef.current); 
+ setSessions(prev =>(prev.map((s)=>(s.active===true?res.data.session:s)))); 
+
+
+ //SO THAT WHEN A SESSIONS ENDS THE WEEKLY ANALYSIS GETS UPDATED 
+ const analytics = await api.get("/study/analytics");
+
+setdata(analytics.data);
+
+
+} catch (err) {
+    console.log(err.response.data);
+}
+
+
+}
+
+
+
+
+//RESET A SESSION
+const resetSession = async ()=>{
+     try {
+    const res=await api.patch('/study/session/end');
+    console.log(res.data);
+    
+ setSessions(prev =>(prev.map((s)=>(s.active===true?res.data.session:s)))); 
+
+
+  //SO THAT WHEN A SESSIONS ENDS THE WEEKLY ANALYSIS GETS UPDATED 
+ const analytics = await api.get("/study/analytics");
+
+setdata(analytics.data);
+
+
+} catch (err) {
+    console.log(err.response.data);
+}
+
+ setelap(0);
+   setcl(true);
+ clearInterval(intervalRef.current); 
+
+}
+
+
+
+
+
+
+
+//IF PAGE GETS REFRESHED 
+useEffect(()=>{
+
+ const getsessions=async ()=>{
+    try {
+        const res=await api.get('/study/activesession');
+console.log(res.data);
+
+
+if(res.data){
+    setCurrentSubject(activesession.subject??null);
+   setelap(
+    Date.now() - new Date(activesession.start)
+);
+
+timr();
+setcl(false);
+}
+    } 
+    catch (err) {
+        console.log(err.response.data);
+    }
+
+    }
+
+    getsessions();
+
+},[]);
+
+
+
+
+
+
 
 
 
@@ -45,52 +161,19 @@ const sec=elap%60;
 <div className='flex justify-center '>
 
 <h1 className=' text-white  text-6xl font-bold tracking-wider'>
-    
-    {hour<10?0:""}{hour}:{min<10?0:""}{min}:{sec<10?0:""}{sec}
-    
+   
+   {new Date(elap).toISOString().slice(11,19)} 
     </h1>
 </div>
 
 <div className='flex justify-center gap-19 items-center '>
 
     {currentSubject!==null?(
-        cl?<button className='bg-slate-800/60 border border-white/25 rounded-full  text-2xl p-5 hover:bg-green-500/50 hover:text-green-300 transition-all duration-500 ' onClick={()=>{
-            timr(); setcl(false);
-            const newId = Date.now();  sessionId.current = newId;
-
-    setSessions(prev=>[
-        ...prev,
-        {
-            id:newId,
-            subId:currentSubject,
-            start:Date.now(),
-            end:null
-        }
-    ]);
-        }} >  ▶  </button>
+        cl?<button className='bg-slate-800/60 border border-white/25 rounded-full  text-2xl p-5 hover:bg-green-500/50 hover:text-green-300 transition-all duration-500 ' onClick={newSession} >  ▶  </button>
    :
-   <button className='bg-slate-800/60 rounded-full  text-2xl p-5 hover:bg-black transition-all duration-500 border border-white/25' onClick={()=>{setcl(true); clearInterval(id.current); setSessions(prev =>
-    prev.map(session =>
-        session.id === sessionId.current
-        ?
-        {...session,end:Date.now()}
-        :
-        session
-    )
-); }}> ⏸  </button>):"ENTER THE SUBJECT"}
+   <button className='bg-slate-800/60 rounded-full  text-2xl p-5 hover:bg-black transition-all duration-500 border border-white/25' onClick={pauseSession}> ⏸  </button>):"ENTER THE SUBJECT"}
 
-   <button className='bg-slate-800/60 rounded-full  text-2xl p-5 hover:bg-red-500/50 hover:text-red-300 transition-all duration-500 border border-white/25' onClick={()=>{
-    setelap(0); clearInterval(id.current); setcl(true);
-   setSessions(prev =>
-    prev.map(session =>
-        session.id === sessionId.current
-        ?
-        {...session,end:Date.now()}
-        :
-        session
-    )
-); 
-   }}> 🔄  </button>
+   <button className='bg-slate-800/60 rounded-full  text-2xl p-5 hover:bg-red-500/50 hover:text-red-300 transition-all duration-500 border border-white/25' onClick={resetSession}> 🔄  </button>
 
 </div>
 
@@ -107,12 +190,12 @@ text-center
 Current Subject
 </p>
 <select className='text-green-400 p-2 text-xl font-bold bg-black'
-    value={currentSubject} disabled={!cl}
-    onChange={(e) => setCurrentSubject(Number(e.target.value))}
+    value={currentSubject ?? ""} disabled={!cl}
+    onChange={(e) => setCurrentSubject(e.target.value)}
 >
     {sub.map((s) => (
-        <option key={s.id} value={s.id}>
-            {s.text}
+        <option key={s._id} value={s._id}>
+            {s.name}
         </option>
     ))}
 </select>

@@ -9,6 +9,9 @@ const subjectSchema=new mongoose.Schema(
             type:String,
             required:true,
             trim:true
+         },
+         checked:{
+            type:Boolean,default:false
          }
 
     },

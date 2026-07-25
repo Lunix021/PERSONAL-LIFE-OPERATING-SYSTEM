@@ -8,7 +8,12 @@ const studySessionSchema=new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,ref:"Subject",required:true
     },
     start:Date,
-    end:Date
+    end:Date,
+    duration:Number,
+    active: {
+    type:Boolean,
+    default:true
+}
 });
 
 module.exports=mongoose.model("studySession",studySessionSchema);

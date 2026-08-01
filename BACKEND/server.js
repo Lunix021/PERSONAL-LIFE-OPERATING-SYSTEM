@@ -8,6 +8,7 @@ const dbcon=require('./dbcon.js');
 const express=require('express');
 const cookieparser=require('cookie-parser');
 const cors=require("cors");
+require("dotenv").config();
 
 
 const PORT=process.env.PORT||5000;

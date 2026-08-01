@@ -43,5 +43,5 @@ app.use('/task',taskRouter);
 app.use('/finance',financeRouter);
 
 app.listen(PORT,()=>{
-    console.log(`SERVER IS RUNNING AT http://localhost:${port}`);
+    console.log(`SERVER IS RUNNING`);
 })

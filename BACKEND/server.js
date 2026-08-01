@@ -16,7 +16,7 @@ const app=express();
 dbcon();
 app.use(express.json());
 app.use(cors({
-    origin:"https://personal-life-operating-system-pi.vercel.app/",
+    origin:"https://personal-life-operating-system-pi.vercel.app",
     credentials:true
 }));
 

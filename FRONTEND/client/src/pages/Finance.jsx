@@ -1,49 +1,55 @@
-import React, { act, useRef, useState } from 'react'
+import React, { act, useEffect, useRef, useState } from 'react'
+import api  from '../api/axios';
 
 function Finance() {
 
- const [mod,setMod]=useState(false)
-
- 
- const [newob,setnewob]=useState({});
-const [activities,setactivities] =useState ([
-   
-   
-  ]);
+const [mod,setMod]=useState(false) 
+const [newob,setnewob]=useState({});
+const [activities,setactivities] =useState ([]);
+const [totalAmount,settotalAmount]=useState();
+const [todayamount,settodayamount]=useState();
+const [monthamount,setmonthamount]=useState();
 
 
-const totalAmount = activities.reduce((total, ac) => {
-  return total + ac.amount;
-}, 0);
+//GET ALL TRANSACTIONS AND THE DETAILS
+useEffect(()=>{
+  const gettransaction= async()=>{
+try {
+  const res=await api.get('/finance/transactions');
+  console.log("TRANSACTIONS : ",res.data);
+  setactivities(res.data.alltransaction);
+  settodayamount(res.data.todayexpense);
+  settotalAmount(res.data.totalexpense);
+  setmonthamount(res.data.monthexpense);
 
-const todayamount=activities.reduce((total,ac)=>{
-  const today = new Date();
-  const todayDate = today.getDate();
-const todayMonth = today.getMonth();
-const todayYear = today.getFullYear();
-  if (
-   ac.timegen.getDate() === todayDate &&
-   ac.timegen.getMonth() === todayMonth &&
-   ac.timegen.getFullYear() === todayYear
-){
-  return total+ac.amount;
+} catch (err) {
+  console.log(err.response.data);
 }
-  return total;
-},0);
-const monthamount=activities.reduce((total,ac)=>{
-  const today = new Date();
- 
-const todayMonth = today.getMonth();
-const todayYear = today.getFullYear();
-  if (
-   
-   ac.timegen.getMonth() === todayMonth &&
-   ac.timegen.getFullYear() === todayYear
-){
-  return total+ac.amount;
 }
-  return total;
-},0);
+
+gettransaction();
+
+},[]);
+
+
+
+
+//ADD A TRANSACTION
+const addtransaction= async()=>{
+try {
+
+  const res=await api.post('/finance/add',newob);
+   console.log(res.data);
+   setactivities([...activities, res.data.transaction]) ;
+  setMod(false);
+
+} catch (err) {
+  console.log(err.response.data);
+}
+}
+
+
+
 
   return (
     <>
@@ -116,14 +122,14 @@ const todayYear = today.getFullYear();
         {activities.map((activity) => (
 
           <div
-            key={activity.id}
+            key={activity._id}
             className="flex justify-between items-center bg-slate-800 rounded-xl p-4 "
           >
 
             <div className="flex items-center gap-2">
 
               <p className="text-white">
-                {activity.title} :
+                {activity.reason} :
               </p>
 
               <p className="text-white">
@@ -133,7 +139,7 @@ const todayYear = today.getFullYear();
             </div>
 
             <span className="text-sm text-gray-400">
-              {activity.timegen.toLocaleString()}
+              {new Date(activity.timegen).toLocaleString()}
             </span>
 
           </div>
@@ -157,7 +163,7 @@ const todayYear = today.getFullYear();
         
        <div className='flex'>
         <h1 className='text-white font-bold text-2xl p-2'>Enter reason:</h1>
-       <input type="text" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 text-xl' onChange={(e)=>{setnewob({...newob,title:e.target.value})}} required autoFocus/>
+       <input type="text" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 text-xl' onChange={(e)=>{setnewob({...newob,reason:e.target.value})}} required autoFocus/>
        </div>
 
        <div className='flex'>
@@ -176,12 +182,8 @@ const todayYear = today.getFullYear();
        </div>
 
        <div className='flex justify-between text-white'>
-        <button className='bg-green-400/60 p-2 hover:bg-green-800' onClick={()=>{
-         setactivities([...activities, {
-    ...newob,
-    id: Date.now(),
-    timegen:new Date()
-  }]) ;setMod(false);}}> SUBMIT </button>
+        <button className='bg-green-400/60 p-2 hover:bg-green-800' onClick={()=>{addtransaction();}}> SUBMIT </button>
+
        <button className='bg-red-400/60 p-2 hover:bg-red-800' onClick={()=>{setMod(false)}}> CANCEL</button>
        </div>
 

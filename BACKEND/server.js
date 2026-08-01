@@ -3,25 +3,28 @@ const userRouter=require('./routes/user.js');
 const fitnessRouter=require('./routes/fitness.js');
 const studyRouter=require('./routes/study.js');
 const taskRouter=require('./routes/task.js');
+const financeRouter=require('./routes/finance.js')
 const dbcon=require('./dbcon.js');
 const express=require('express');
 const cookieparser=require('cookie-parser');
 const cors=require("cors");
 
 
-const port=8081;
+const PORT=process.env.PORT||5000;
 const app=express();
 dbcon();
 app.use(express.json());
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://personal-life-operating-system-pi.vercel.app/",
     credentials:true
 }));
 
 app.use(cookieparser());
 
-app.get('/',(req,res)=>{
-    res.send("PLOS BACKEND RUNNING");
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok"
+  });
 });
 
 app.use('/user',userRouter);
@@ -35,6 +38,10 @@ app.use('/study',studyRouter);
 
 app.use('/task',taskRouter);
 
-app.listen(port,()=>{
+
+
+app.use('/finance',financeRouter);
+
+app.listen(PORT,()=>{
     console.log(`SERVER IS RUNNING AT http://localhost:${port}`);
 })

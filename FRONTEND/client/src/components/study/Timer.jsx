@@ -10,14 +10,14 @@ const [elap,setelap]=useState(0);
 
 const [cl,setcl]=useState(true);
 
-const timr=()=>{
-     
+const timr=()=>{ 
    intervalRef.current= setInterval(()=>{
     setelap(elap=>elap+1000); 
         settoal(prev=>prev+1);
         },1000);
-
 };
+
+
 
 
 useEffect(() => {
@@ -25,12 +25,6 @@ useEffect(() => {
         setCurrentSubject(sub[0]._id);
     }
 }, [sub]); 
-
-
-
-
-
-
 
 
 
@@ -123,13 +117,14 @@ console.log(res.data);
 
 
 if(res.data){
-    setCurrentSubject(activesession.subject??null);
-   setelap(
-    Date.now() - new Date(activesession.start)
-);
+    setCurrentSubject(res.data.subject ?? null);
 
-timr();
-setcl(false);
+    setelap(
+        Date.now() - new Date(res.data.start).getTime()
+    );
+
+    timr();
+    setcl(false);
 }
     } 
     catch (err) {

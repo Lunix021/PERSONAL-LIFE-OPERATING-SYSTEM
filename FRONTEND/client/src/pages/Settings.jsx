@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import api from '../api/axios';
 
 
@@ -6,26 +6,70 @@ function Settings() {
 
 
 
-const [userdetail,setuserdetail]=useState({});
+const [userdetail,setuserdetail]=useState({
+
+});
 
 const [appearance,setAppearance]=useState({
     theme:"Dark",
-    accent:"blue",
-    animation:true
+    accent:"blue"
 });
 
-const [preferences,setPreferences]=useState({
-});
+const [preferences,setPreferences]=useState({});
 
-const logout=async()=>{
+
+
+
+//FETCHING DETAILS AFTER REFRESH
+useEffect(()=>{
+ const getdetails=async()=>{
+    try {
+    const res=await api.get('/user/me');
+    console.log(res.data);
+    setuserdetail({name:res.data.name,age:res.data.age,weight:res.data.weight,height:res.data.height});
+    setAppearance(res.data.appearance);
+    setPreferences(res.data.preferences);
+  } catch (err) {
+    console.log(err.response.data);
+  }
+  }
+  getdetails();
+},[])
+
+
+
+
+
+
+//UPDATE OR ADD USER DETAIL
+const update= async()=>{
   try {
-    await api.post('/user/logout');
-    window.location.href = "/login";
-
+    const res=await api.post('/user/update',{...userdetail,...appearance,...preferences});//SPREAD OPERATOR IS USED SO THAT req.body means the content inside them all
+    console.log(res.data);
   } catch (err) {
     console.log(err.response.data);
   }
 }
+
+
+
+
+
+
+//LOGOUT
+const logout=async()=>{
+  try {
+    await api.post('/user/logout');
+    window.location.href = "/login";
+  } catch (err) {
+    console.log(err.response.data);
+  }
+}
+
+
+
+
+
   return (
     <div className="p-6 space-y-6 relative min-h-screen overflow-hidden bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
 
@@ -60,7 +104,7 @@ const logout=async()=>{
             <p className="text-gray-400 mb-2">Name</p>
             <input 
               className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white outline-none"
-              placeholder="Enter name" value={userdetail.name || ""}
+              placeholder="Enter name" value={userdetail.name ??""}
 onChange={(e)=>
 setuserdetail({...userdetail,name:e.target.value})
 }
@@ -72,7 +116,7 @@ setuserdetail({...userdetail,name:e.target.value})
             <input type='number'
               className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white outline-none"
               placeholder="20"
-              value={userdetail.age || ""}
+              value={userdetail.age ??""}
 onChange={(e)=>
 setuserdetail({...userdetail,age:Number(e.target.value)})
 }
@@ -84,7 +128,7 @@ setuserdetail({...userdetail,age:Number(e.target.value)})
             <input type='number'
               className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white outline-none"
               placeholder="172 cm"
-              value={userdetail.height || ""}
+              value={userdetail.height ??""}
 onChange={(e)=>
 setuserdetail({...userdetail,height:Number(e.target.value)})
 }
@@ -96,7 +140,7 @@ setuserdetail({...userdetail,height:Number(e.target.value)})
             <input type='number'
               className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white outline-none"
               placeholder="72 kg"
-              value={userdetail.weight || ""}
+              value={userdetail.weight?? ""}
 onChange={(e)=>
 setuserdetail({...userdetail,weight:Number(e.target.value)})
 }
@@ -208,26 +252,6 @@ accent:"yellow"
 
           </div>
 
-          <div className="flex justify-between items-center bg-slate-800 rounded-xl p-4">
-
-            <span className="text-white text-lg">
-              Enable Animations
-            </span>
-<input
-type="checkbox"
-checked={appearance.animation}
-onChange={()=>
-setAppearance({
-...appearance,
-animation:!appearance.animation
-})
-}
-className="scale-150"
-/>
-          
-
-          </div>
-
         </div>
 
       </div>
@@ -253,7 +277,7 @@ className="scale-150"
 
             <input type='number'
               className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white"
-              placeholder="5 Hours" value={preferences.studyGoal}
+              placeholder="5 Hours" value={preferences.studyGoal??0}
 
 onChange={(e)=>
 setPreferences({
@@ -274,7 +298,7 @@ studyGoal:Number(e.target.value)
             <input type='number'
               className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white"
               placeholder="10000"
-              value={preferences.stepsGoal}
+              value={preferences.stepsGoal??0}
 
 onChange={(e)=>
 setPreferences({
@@ -295,7 +319,7 @@ stepsGoal:Number(e.target.value)
             <input type='number'
               className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white"
               placeholder="3 Litres"
-              value={preferences.waterGoal}
+              value={preferences.waterGoal??0}
 
 onChange={(e)=>
 setPreferences({
@@ -307,30 +331,7 @@ waterGoal:Number(e.target.value)
 
           </div>
 
-          <div>
-
-            <p className="text-gray-400 mb-2">
-              Currency
-            </p>
-
-            <select className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-white" value={preferences.currency}
-
-onChange={(e)=>
-setPreferences({
-...preferences,
-currency:e.target.value
-})
-}>
-
-              <option>₹ INR</option>
-
-              <option>$ USD</option>
-
-              <option>€ EUR</option>
-
-            </select>
-
-          </div>
+     
 
         </div>
 
@@ -341,15 +342,7 @@ currency:e.target.value
       <div className="flex justify-between">
 <button
 className="bg-green-500 hover:bg-green-600 transition text-white font-bold px-6 py-3 rounded-xl"
-onClick={()=>{
-
-console.log(userdetail);
-
-console.log(appearance);
-
-console.log(preferences);
-
-}}
+onClick={()=>{update();}}
 >
 
 SAVE SETTINGS
@@ -413,7 +406,7 @@ SAVE SETTINGS
             <span className="text-cyan-400 font-bold">
               v1.0
             </span>
-
+ 
           </div>
 
           <div className="flex justify-between bg-slate-800 rounded-xl p-4">

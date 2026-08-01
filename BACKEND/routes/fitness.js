@@ -34,7 +34,7 @@ router.post('/add',auth,async (req,res)=>{
             ]
           });
 
-          res.status(201).send("MUSCLE ADDED SUCCESSFULLY")
+          res.status(201).json({msg:"MUSCLE ADDED SUCCESSFULLY",list:await Fitness.find({user:req.user.id})})
   }
   
   else{
@@ -50,7 +50,7 @@ router.post('/add',auth,async (req,res)=>{
       
      await exist.save();
 
-     res.status(200).send("Exercise added successfully");
+     res.status(200).json({msg:"Exercise added successfully",list:await Fitness.find({user:req.user.id})});
      }
   }
 catch(err){

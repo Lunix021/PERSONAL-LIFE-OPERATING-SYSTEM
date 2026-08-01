@@ -18,17 +18,14 @@ const userSchema=new mongoose.Schema({
     age:Number,
     height:Number,
     weight:Number,
-    streak:Number,
     preferences:{
         studyGoal:Number,
         stepsGoal:Number,
-        waterGoal:Number,
-        currency:String
+        waterGoal:Number
     },
     appearance:{
         theme:String,
-        accent:String,
-        animation:Boolean
+        accent:String
     }
 }
 ,

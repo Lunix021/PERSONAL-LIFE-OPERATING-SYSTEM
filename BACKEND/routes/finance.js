@@ -3,23 +3,24 @@ const router=express.Router();
 const auth=require('../middleware/auth');
 const Finance=require('../models/Finance');
 
-//INSTEAD OF 3 FINDS U CAN USE ONE FIND AND A FOR LOOP TO GET ALL VALUES 
+//INSTEAD OF 3 FINDS U CAN USE ONE FIND AND A FOR LOOP TO GET ALL VALUES BUT WHO WILL GO FOR OPTIMIZATION HAHAHAHAHA
 
 
 
 
 //ADD A TRANSACTION
-router.post('/transaction',auth,async (req,res)=>{
+router.post('/add',auth,async (req,res)=>{
 
     if(!req.body.reason || req.body.amount == null){
     return res.status(400).send("Missing transaction details");
 }
 
 try{
+    const transaction=
 await Finance.create({
     user:req.user.id,reason:req.body.reason,amount:req.body.amount,timegen:new Date()
 });
-res.status(201).send("TRANSACTION ADDED SUCCESSFULLY");
+res.status(201).json({msg:"TRANSACTION ADDED SUCCESSFULLY",transaction:transaction});
 }
 catch(err){
     res.status(500).send(err.message);
@@ -70,11 +71,18 @@ try{
 res.status(200).json({msg:"GOT ALL TRANSACTIONS NIGGA?",
     alltransaction:transactions,
     totalexpense:totalAmount,
-    todayExpense:todayAmount,
-    monthExpense:monthAmount
+    todayexpense:todayAmount,
+    monthexpense:monthAmount
 });
 }
 catch(err){
     res.status(500).send(err.message);
 }
 });
+
+
+
+
+
+
+module.exports=router;

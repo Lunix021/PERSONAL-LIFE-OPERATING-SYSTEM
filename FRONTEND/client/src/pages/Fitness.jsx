@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
+import api from '../api/axios'
 
 // PR tracking
 // ❌ Exercise history graphs
@@ -13,56 +14,50 @@ import React, { useState } from 'react'
 // Exercise history - will add these features later and tehre are features to eb added in studies and finance too dont forget mf
 
 
+
 function Fitness() {
-  const [activities,setactivity]=useState([
-    {name:"CHEST",selected:false,exercises:        [{name:"Bench Press",set:4,reps:8,weight:30},{name:"Incline DB",set:3,reps:10,weight:40}]},
-     {name:"BACK",selected:false,exercises:        [{name:"Bench Press",set:4,reps:8,weight:30},{name:"Incline DB",set:3,reps:10,weight:40}]}
-  ]);
+
+  const [activities,setactivity]=useState([]);
+
    const [mod,setMod]=useState(false);
 
    const[newob,setnewob]=useState({});
 
-   const addmusc=()=>{
-            setactivity(prev => {
-    const exists = prev.some(item => item.name === newob.name);
+   
+ //get all muscles when refresh
+ useEffect(()=>{
+  const getmuscles=async()=>{
+try {
+  const res=await api.get('/fitness/muscles');
+  console.log(res.data);
+  setactivity(res.data.list);
+} catch (err) {
+  console.log(err.response.data);
+}
+  }
+  getmuscles();
+ },[]);
 
-    if (exists) {
-        return prev.map(item =>
-            item.name === newob.name
-                ? {
-                    ...item,
-                    exercises: [
-                        ...item.exercises,
-                        {
-                            name: newob.exercise,
-                            set: newob.set,
-                            reps: newob.rep,
-                            weight: newob.weight
-                        }
-                    ]
-                }
-                : item
-        );
+
+
+
+
+
+  //add a section
+  const addMuscle=async()=>{
+    try {
+   
+    const res= await api.post('/fitness/add',newob);
+    console.log(res.data);
+    setactivity(res.data.list);
+       setMod(false);
+       setnewob("");
+    } catch (err) {
+      console.log(err.response.data);
     }
+  }
 
-    return [
-        ...prev,
-        {
-            name: newob.name,
-            selected: false,
-            exercises: [
-                {
-                    name: newob.exercise,
-                    set: newob.set,
-                    reps: newob.rep,
-                    weight: newob.weight
-                }
-            ]
-        }
-    ];
-});
-              setnewob({});
-   }
+
    const totalExercises = activities.reduce((total,muscle)=>{
   return total + muscle.exercises.length;
 },0);
@@ -70,14 +65,14 @@ function Fitness() {
 
 const totalSets = activities.reduce((total,muscle)=>{
   return total + muscle.exercises.reduce((sum,ex)=>{
-    return sum + ex.set;
+    return sum + ex.sets;
   },0);
 },0);
 
 
 const totalVolume = activities.reduce((total,muscle)=>{
   return total + muscle.exercises.reduce((sum,ex)=>{
-    return sum + (ex.set * ex.reps * ex.weight);
+    return sum + (ex.sets * ex.reps * ex.weight);
   },0);
 },0);
  return (
@@ -146,7 +141,7 @@ const totalVolume = activities.reduce((total,muscle)=>{
 
 {activities.map((activity)=>(
 
-<div key={activity.name} 
+<div key={activity.muscle} 
 className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
 
 
@@ -155,7 +150,7 @@ className="flex justify-between items-center p-5 cursor-pointer hover:bg-slate-7
 onClick={()=>{
 setactivity(prev =>
 prev.map(item =>
-item.name === activity.name
+item.muscle === activity.muscle
 ? {...item,selected:!item.selected}
 :item
 )
@@ -167,7 +162,7 @@ item.name === activity.name
 <div>
 
 <h1 className="text-white text-2xl font-bold">
- {activity.name}
+ {activity.muscle}
 </h1>
 
 
@@ -369,7 +364,7 @@ Status
         
        <div className='flex'>
         <h1 className='text-white font-bold text-2xl p-2'>Enter Muscle Name:</h1>
-       <input type="text" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 text-xl' onChange={(e)=>{setnewob({...newob,name:e.target.value.toUpperCase()})}} required autoFocus/>
+       <input type="text" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 text-xl' onChange={(e)=>{setnewob({...newob,muscle:e.target.value.toUpperCase()})}} required autoFocus/>
        </div>
 
 
@@ -380,12 +375,12 @@ Status
 
        <div className='flex'>
         <h1 className='text-white font-bold text-2xl p-2'>Enter sets:</h1>
-       <input type="Number" min="0" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 w-30 text-xl' onChange={(e)=>{setnewob({...newob,set:Number(e.target.value)})}} required />
+       <input type="Number" min="0" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 w-30 text-xl' onChange={(e)=>{setnewob({...newob,sets:Number(e.target.value)})}} required />
        </div>
 
     <div className='flex'>
         <h1 className='text-white font-bold text-2xl p-2'>Enter reps:</h1>
-       <input type="Number" min="0" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 w-30 text-xl' onChange={(e)=>{setnewob({...newob,rep:Number(e.target.value)})}} required />
+       <input type="Number" min="0" className=' bg-slate-500 border-2 border-white/40 text-white rounded-2xl px-2 w-30 text-xl' onChange={(e)=>{setnewob({...newob,reps:Number(e.target.value)})}} required />
        </div>
 
         <div className='flex'>
@@ -396,8 +391,8 @@ Status
 
        <div className='flex justify-between text-white'>
         <button className='bg-green-400/60 p-2 hover:bg-green-800' onClick={()=>{
-          addmusc();
-          setMod(false);}}> SUBMIT </button>
+          addMuscle();
+         }}> SUBMIT </button>
        <button className='bg-red-400/60 p-2 hover:bg-red-800' onClick={()=>{setMod(false)}}> CANCEL</button>
        </div>
 

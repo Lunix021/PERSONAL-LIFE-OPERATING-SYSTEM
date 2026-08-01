@@ -64,7 +64,7 @@ const exist = await User.findOne({ email: req.body.email });
                 }
             );
 
-            res.cookie("token", token, { httpOnly:true,secure:false,sameSite:"lax",maxAge:7*24*60*60*1000});
+            res.cookie("token", token, { httpOnly:true,secure:true,sameSite:"none",maxAge:7*24*60*60*1000});
 
 res.status(201).json({
     msg:"LOGIN SUCCESS"
@@ -90,11 +90,14 @@ res.status(201).json({
 router.post('/logout',auth,async (req,res)=>{
  res.clearCookie("token",{
     httpOnly: true,
-    sameSite: "lax",
-    secure: false
+    sameSite: "none",
+    secure: true
 });
 res.send("Logged out");
 });
+
+
+
 
 
 
@@ -105,14 +108,28 @@ router.get('/profile',auth,async (req,res)=>{
 });
 
 
+
+
+
+
+
 // ADD DETAILS FOR A USER
 router.post('/update',auth,async(req,res)=>{
     try {
-       await User.findByIdAndUpdate(req.user.id,{
-        "preferences.studyGoal": req.body.goal
+    await User.findByIdAndUpdate(req.user.id,{
+        "preferences.studyGoal": req.body.goal??0,
+        "preferences.waterGoal":req.body.waterGoal??0,
+        "preferences.stepsGoal":req.body.stepsGoal??0,
+        "name":req.body.name,
+        "age":req.body.age??0,
+        "height":req.body.height??0 ,
+        "weight": req.body.weight??0,
+        "appearance.theme":req.body.theme??"Light",
+        "appearance.accent":req.body.accent??"blue"
+
     });
 
-        res.status(200).send("GOAL SET BABAM BABAM")
+        res.status(200).json({"msg":"DETAILS UPDATED"})
     } catch (err) {
         res.status(500).send(err.message);
     }

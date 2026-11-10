@@ -2,7 +2,6 @@ import React from 'react'
 import Recentactivity from '../components/dashboard/maincontent/Recentactivity'
 import Aiinsight from '../components/dashboard/maincontent/Aiinsight'
 import Tasks from '../components/dashboard/maincontent/Tasks'
-import Quicklink from '../components/dashboard/maincontent/Quicklink'
 import Prcard from '../components/dashboard/maincontent/Prcard'
 
 function Dashboard() {
@@ -16,7 +15,6 @@ function Dashboard() {
 
 <div className="absolute left-25 bottom-20 w-80 h-80 bg-cyan-500/35 rounded-full blur-3xl"></div>
 
-    <Quicklink/>
     <div className='flex gap-2'>
     <Tasks/>
     <Prcard/>

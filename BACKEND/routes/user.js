@@ -4,7 +4,12 @@ const router=express.Router();
 const bcrypt=require('bcrypt');
 const jwt =require('jsonwebtoken');
 const auth=require('../middleware/auth')
+const OpenAI=require('openai');
 
+
+const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 
 
 
@@ -135,6 +140,57 @@ router.post('/update',auth,async(req,res)=>{
     }
     
 })
+
+
+
+
+//send user statistics to AI
+router.post("/ai/generate", auth, async (req, res) => {
+    const todayStart=new Date();
+        todayStart.setHours(0,0,0,0);
+        const tomorrowStart=new Date();
+        tomorrowStart.setHours(24,0,0,0);
+        
+         try
+         {
+
+      const usr=await User.findById(req.user.id);
+            
+    const sessions=await studySession.find({user:req.user.id,
+       start:{
+        $gte:todayStart,
+        $lt:tomorrowStart
+    }});
+           
+    const total=sessions.reduce((total,dur)=>{return total+(dur.duration??0)},0);
+
+        
+        const totalSessions = sessions.length;
+
+        const response = await client.responses.create({
+            model: "gpt-6",
+            instructions: `
+                You are PLOS, a friendly personal productivity assistant.
+                Analyze the user's study statistics.
+                Give constructive feedback and actionable suggestions.
+                Never invent statistics.
+            `,
+            input: JSON.stringify({
+                total,
+                totalSessions,
+                 studyGoal: usr.preferences.studyGoal
+            })
+        });
+
+        res.json({
+            report: response.output_text
+        });
+
+        
+    } catch (err) {
+        res.status(500).json({ error: "Something went wrong" });
+    }
+});
 
 
 module.exports=router;

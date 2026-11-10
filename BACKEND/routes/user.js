@@ -152,7 +152,7 @@ router.post("/ai/generate", auth, async (req, res) => {
         
          try
          {
-
+console.log("AI ROUTE HIT");
       const usr=await User.findById(req.user.id);
             
     const sessions=await studySession.find({user:req.user.id,
@@ -167,7 +167,7 @@ router.post("/ai/generate", auth, async (req, res) => {
         const totalSessions = sessions.length;
 
         const response = await groq.chat.completions.create({
-           model: "openai/gpt-oss-120b",
+           model: "llama-3.3-70b-versatile",
               messages: [
                 {
                     role: "system",

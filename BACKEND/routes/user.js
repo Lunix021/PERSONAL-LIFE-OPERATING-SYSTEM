@@ -87,7 +87,7 @@ res.status(201).json({
 
 
 //LOGOUT A USER
-router.post('/logout',auth,async (req,res)=>{
+router.post('/logout',async (req,res)=>{
  res.clearCookie("token",{
     httpOnly: true,
     sameSite: "none",

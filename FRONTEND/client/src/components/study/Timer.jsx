@@ -10,9 +10,11 @@ const [elap,setelap]=useState(0);
 
 const [cl,setcl]=useState(true);
 
-const timr=()=>{ 
+const timr=(startTime)=>{ 
+    clearInterval(intervalRef.current);
+    
    intervalRef.current= setInterval(()=>{
-    setelap(elap=>elap+1000); 
+    setelap(Date.now() - startTime); 
         settoal(prev=>prev+1);
         },1000);
 };
@@ -36,7 +38,7 @@ try {
     const res=await api.post('/study/session/start',{subId:currentSubject});
     console.log(res.data);
     setSessions(prev=>[...prev,res.data.session]);
-    timr(); 
+    timr(new Date(res.data.start).getTime()); 
 
 setcl(false);
 
@@ -123,7 +125,7 @@ if(res.data){
         Date.now() - new Date(res.data.start).getTime()
     );
 
-    timr();
+    timr(new Date(res.data.start).getTime());
     setcl(false);
 }
     } 

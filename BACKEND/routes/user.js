@@ -4,11 +4,10 @@ const router=express.Router();
 const bcrypt=require('bcrypt');
 const jwt =require('jsonwebtoken');
 const auth=require('../middleware/auth')
-const OpenAI=require('openai');
+const Groq = require("groq-sdk");
 
-
-const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+const groq = new Groq({
+    apiKey: process.env.API_KEY
 });
 
 
@@ -167,29 +166,42 @@ router.post("/ai/generate", auth, async (req, res) => {
         
         const totalSessions = sessions.length;
 
-        const response = await client.responses.create({
-            model: "gpt-6",
-            instructions: `
-                You are PLOS, a friendly personal productivity assistant.
-                Analyze the user's study statistics.
-                Give constructive feedback and actionable suggestions.
-                Never invent statistics.
-            `,
-            input: JSON.stringify({
-                total,
-                totalSessions,
-                 studyGoal: usr.preferences.studyGoal
-            })
+        const response = await groq.chat.completions.create({
+           model: "openai/gpt-oss-120b",
+              messages: [
+                {
+                    role: "system",
+                    content: `
+                        You are PLOS, a friendly personal productivity assistant.
+                        Analyze the user's study statistics.
+                        Give constructive feedback and actionable suggestions.
+                        Never invent statistics.
+                        Keep your response concise and encouraging.
+                    `
+                },
+                {
+                    role: "user",
+                    content: JSON.stringify({
+                        totalStudyTimeSeconds: total,
+                        totalSessions,
+                        dailyStudyGoalHours: usr.preferences?.studyGoal ?? 0
+                    })
+                }
+            ]
         });
 
         res.json({
-            report: response.output_text
+            report: response.choices[0].message.content
         });
 
         
     } catch (err) {
-        res.status(500).json({ error: "Something went wrong" });
-    }
+    console.error("AI GENERATION ERROR:", err);
+
+    res.status(500).json({
+        error: err.message
+    });
+}
 });
 
 

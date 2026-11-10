@@ -188,6 +188,7 @@ router.get('/sessions',auth,async (req,res)=>{
     
      try
      {
+   
 const allsession=await studySession.find({user:req.user.id,
    start:{
     $gte:todayStart,

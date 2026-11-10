@@ -5,6 +5,7 @@ const bcrypt=require('bcrypt');
 const jwt =require('jsonwebtoken');
 const auth=require('../middleware/auth')
 const Groq = require("groq-sdk");
+const studySession=require('../models/Study/StudySession');
 
 const groq = new Groq({
     apiKey: process.env.API_KEY

@@ -32,7 +32,7 @@ const timr = (startTime) => {
 
         clearInterval(intervalRef.current);
 
-        setelap(Date.now() - startTime);
+        setelap(prev=>prev+1000);
 
         intervalRef.current = setInterval(() => {
 

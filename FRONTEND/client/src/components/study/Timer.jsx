@@ -61,7 +61,7 @@ const newSession= async ()=>{
 try {
     const res=await api.post('/study/session/start',{subId:currentSubject});
     console.log(res.data);
-     const startTime = new Date(res.data.start).getTime();
+     const startTime = new Date(res.data.newses.start).getTime();
 
             if (!Number.isFinite(startTime)) {
                 console.error("Invalid session start:", res.data.newses.start);
@@ -210,7 +210,7 @@ useEffect(() => {
 
 <h1 className=' text-white  text-6xl font-bold tracking-wider'>
    
-   {new Date(elap).toISOString().slice(11,19)} 
+   {formatTime(elap)} 
     </h1>
 </div>
 

@@ -247,7 +247,15 @@ weekSessions.forEach((curr)=>{
        
 let totalweekhours=weeklyHours.reduce((total,day)=>{return total+day},0);
 
-totalweekhours=new Date(totalweekhours*60*60*1000).toISOString().slice(11,19);
+const totalSeconds = Math.floor(totalweekhours * 3600);
+
+const hours = Math.floor(totalSeconds / 3600);
+const minutes = Math.floor((totalSeconds % 3600) / 60);
+const seconds = totalSeconds % 60;
+
+totalweekhours = [hours, minutes, seconds]
+    .map(v => String(v).padStart(2, '0'))
+    .join(':');
 
 
 let streak=0;

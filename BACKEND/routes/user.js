@@ -150,10 +150,12 @@ router.post("/ai/generate", auth, async (req, res) => {
         todayStart.setHours(0,0,0,0);
         const tomorrowStart=new Date();
         tomorrowStart.setHours(24,0,0,0);
+
+        console.log("AI ROUTE HIT");
         
          try
          {
-console.log("AI ROUTE HIT");
+
       const usr=await User.findById(req.user.id);
             
     const sessions=await studySession.find({user:req.user.id,

@@ -9,7 +9,7 @@ function Aiinsight() {
     const generateReport = async () => {
         try {
             setLoading(true);
-            setError('');
+            setError('');   
 
             const res = await api.post('/user/ai/generate');
 

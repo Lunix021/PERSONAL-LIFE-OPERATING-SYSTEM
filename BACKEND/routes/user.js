@@ -239,7 +239,7 @@ Rules:
         
         res.status(200).json({
             stats: {
-                totalStudyTimeSeconds: total,
+                totalStudyTimeHours: total,
                 totalSessions,
                 dailyGoalHours:  usr.preferences?.studyGoal ?? 0
             },

@@ -38,21 +38,21 @@ function Aiinsight() {
         generateReport();
     }, []);
 
-    // Convert seconds into readable hours and minutes
-    const formatStudyTime = (seconds) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
+   
+    const formatStudyTime = (hours) => {
+    const h = Math.floor(hours);
+    const minutes = Math.round((hours - h) * 60);
 
-        if (hours === 0) return `${minutes}m`;
-        if (minutes === 0) return `${hours}h`;
+    if (h === 0) return `${minutes}m`;
+    if (minutes === 0) return `${h}h`;
 
-        return `${hours}h ${minutes}m`;
-    };
+    return `${h}h ${minutes}m`;
+};
 
     const progress = stats?.dailyGoalHours > 0
         ? Math.min(
-            (stats.totalStudyTimeSeconds /
-                (stats.dailyGoalHours * 3600)) * 100,
+            (stats.totalStudyTimeHours/
+                stats.dailyGoalHours) * 100,
             100
         )
         : 0;
@@ -177,7 +177,7 @@ function Aiinsight() {
                             <h3 className="text-lg sm:text-xl
                                 font-bold text-white">
                                 {formatStudyTime(
-                                    stats.totalStudyTimeSeconds
+                                    stats.totalStudyTimeHours
                                 )}
                             </h3>
 
@@ -258,7 +258,7 @@ function Aiinsight() {
 
                         <p className="text-xs text-slate-500">
                             {formatStudyTime(
-                                stats.totalStudyTimeSeconds
+                                stats.totalStudyTimeHours
                             )} of {stats.dailyGoalHours} hours completed
                         </p>
 

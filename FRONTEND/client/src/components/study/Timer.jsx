@@ -61,10 +61,10 @@ const newSession= async ()=>{
 try {
     const res=await api.post('/study/session/start',{subId:currentSubject});
     console.log(res.data);
-     const startTime = new Date(res.data.newses.start).getTime();
+     const startTime = new Date(res.data.session.start).getTime();
 
             if (!Number.isFinite(startTime)) {
-                console.error("Invalid session start:", res.data.newses.start);
+                console.error("Invalid session start:", res.data.session.start);
                 return;
             }
 

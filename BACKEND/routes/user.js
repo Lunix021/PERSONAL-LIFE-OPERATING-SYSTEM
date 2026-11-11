@@ -239,7 +239,7 @@ Rules:
         
         res.status(200).json({
             stats: {
-                totalStudyTimeSeconds: totalStudyTime,
+                totalStudyTimeSeconds: total,
                 totalSessions,
                 dailyGoalHours: dailyGoal
             },

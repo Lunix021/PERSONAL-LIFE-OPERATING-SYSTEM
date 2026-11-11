@@ -23,28 +23,32 @@ const formatTime = (ms) => {
             .join(':');
     };
 
+
 const timr = (startTime) => {
 
-        if (!Number.isFinite(startTime)) {
-            console.error("Invalid start time:", startTime);
-            return;
-        }
+    if (!Number.isFinite(startTime)) {
+        console.error("Invalid start time:", startTime);
+        return;
+    }
 
-        clearInterval(intervalRef.current);
+    clearInterval(intervalRef.current);
 
-        setelap(Date.now() - startTime);
+    // Calculate initial elapsed time
+    setelap(Date.now() - startTime);
 
-        intervalRef.current = setInterval(() => {
+    intervalRef.current = setInterval(() => {
 
-            setelap(prev => prev + 1000);
+        const elapsed = Date.now() - startTime;
 
-            settoal(prev => prev + 1);
+        setelap(elapsed);
 
-            console.log(elap);
-            console.log(formatTime(elap));
+        settoal(prev => prev + 1);
 
-        }, 1000);
-    };
+        console.log("Elapsed:", elapsed);
+        console.log("Formatted:", formatTime(elapsed));
+
+    }, 1000);
+};
 
 
 

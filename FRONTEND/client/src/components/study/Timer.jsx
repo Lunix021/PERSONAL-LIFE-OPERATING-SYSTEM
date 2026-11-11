@@ -33,9 +33,7 @@ const timr = (startTime) => {
 
     clearInterval(intervalRef.current);
 
-    // Calculate initial elapsed time
-    setelap(Date.now() - startTime);
-
+    
     intervalRef.current = setInterval(() => {
 
         const elapsed = Date.now() - startTime;
@@ -156,7 +154,7 @@ setelap(0);
 //IF PAGE GETS REFRESHED 
 useEffect(() => {
 
-        let mounted = true;
+        
 
         const getSessions = async () => {
 
@@ -166,7 +164,7 @@ useEffect(() => {
 
                 console.log(res.data);
 
-                if (!mounted || !res.data) return;
+                if ( !res.data) return;
 
                 const startTime = new Date(res.data.start).getTime();
 
@@ -191,10 +189,6 @@ useEffect(() => {
 
         getSessions();
 
-        return () => {
-            mounted = false;
-            clearInterval(intervalRef.current);
-        };
 
     }, []);
 

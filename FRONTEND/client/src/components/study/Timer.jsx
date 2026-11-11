@@ -10,14 +10,38 @@ const [elap,setelap]=useState(0);
 
 const [cl,setcl]=useState(true);
 
-const timr=(startTime)=>{ 
-    clearInterval(intervalRef.current);
-    
-   intervalRef.current= setInterval(()=>{
-    setelap(Date.now() - startTime); 
-        settoal(prev=>prev+1);
-        },1000);
-};
+const formatTime = (ms) => {
+
+        const totalSeconds = Math.floor(Math.max(0, ms) / 1000);
+
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        return [hours, minutes, seconds]
+            .map(v => String(v).padStart(2, '0'))
+            .join(':');
+    };
+
+const timr = (startTime) => {
+
+        if (!Number.isFinite(startTime)) {
+            console.error("Invalid start time:", startTime);
+            return;
+        }
+
+        clearInterval(intervalRef.current);
+
+        setelap(Date.now() - startTime);
+
+        intervalRef.current = setInterval(() => {
+
+            setelap(Date.now() - startTime);
+
+            settoal(prev => prev + 1);
+
+        }, 1000);
+    };
 
 
 
@@ -26,7 +50,7 @@ useEffect(() => {
     if (sub.length > 0 && currentSubject === null) {
         setCurrentSubject(sub[0]._id);
     }
-}, [sub]); 
+}, [sub,currentSubject, setCurrentSubject]); 
 
 
 
@@ -37,10 +61,18 @@ const newSession= async ()=>{
 try {
     const res=await api.post('/study/session/start',{subId:currentSubject});
     console.log(res.data);
-    setSessions(prev=>[...prev,res.data.session]);
-    timr(new Date(res.data.start).getTime()); 
+     const startTime = new Date(res.data.start).getTime();
 
-setcl(false);
+            if (!Number.isFinite(startTime)) {
+                console.error("Invalid session start:", res.data.start);
+                return;
+            }
+
+            setSessions(prev => [...prev, res.data.session]);
+
+            timr(startTime);
+
+            setcl(false)
 
 
 } catch (err) {
@@ -83,8 +115,13 @@ const resetSession = async ()=>{
      try {
     const res=await api.patch('/study/session/end');
     console.log(res.data);
+
+     clearInterval(intervalRef.current); 
     
  setSessions(prev =>(prev.map((s)=>(s.active===true?res.data.session:s)))); 
+  setelap(0);
+   setcl(true);
+
 
 
   //SO THAT WHEN A SESSIONS ENDS THE WEEKLY ANALYSIS GETS UPDATED 
@@ -97,9 +134,7 @@ setdata(analytics.data);
     console.log(err.response.data);
 }
 
- setelap(0);
-   setcl(true);
- clearInterval(intervalRef.current); 
+
 
 }
 
@@ -110,35 +145,49 @@ setdata(analytics.data);
 
 
 //IF PAGE GETS REFRESHED 
-useEffect(()=>{
+useEffect(() => {
 
- const getsessions=async ()=>{
-    try {
-        const res=await api.get('/study/activesession');
-console.log(res.data);
+        let mounted = true;
 
+        const getSessions = async () => {
 
-if(res.data){
-    setCurrentSubject(res.data.subject ?? null);
+            try {
 
-    setelap(
-        Date.now() - new Date(res.data.start).getTime()
-    );
+                const res = await api.get('/study/activesession');
 
-    timr(new Date(res.data.start).getTime());
-    setcl(false);
-}
-    } 
-    catch (err) {
-        console.log(err.response.data);
-    }
+                console.log(res.data);
 
-    }
+                if (!mounted || !res.data) return;
 
-    getsessions();
+                const startTime = new Date(res.data.start).getTime();
 
-},[]);
+                if (!Number.isFinite(startTime)) {
+                    console.error("Invalid active session start:", res.data.start);
+                    return;
+                }
 
+                setCurrentSubject(res.data.subject ?? null);
+
+                timr(startTime);
+
+                setcl(false);
+
+            } catch (err) {
+
+                console.log(err.response?.data || err.message);
+
+            }
+
+        };
+
+        getSessions();
+
+        return () => {
+            mounted = false;
+            clearInterval(intervalRef.current);
+        };
+
+    }, []);
 
 
 

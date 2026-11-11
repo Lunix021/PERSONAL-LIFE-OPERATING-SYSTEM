@@ -209,7 +209,7 @@ Rules:
                 {
                     role: "user",
                     content: JSON.stringify({
-                        totalStudyTimeSeconds: total,
+                        totalStudyTimeHours: total,
                         totalSessions,
                         dailyStudyGoalHours: usr.preferences?.studyGoal ?? 0
                     })

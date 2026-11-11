@@ -241,7 +241,7 @@ Rules:
             stats: {
                 totalStudyTimeSeconds: total,
                 totalSessions,
-                dailyGoalHours: dailyGoal
+                dailyGoalHours:  usr.preferences?.studyGoal ?? 0
             },
             insight
         });

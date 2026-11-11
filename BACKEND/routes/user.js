@@ -175,11 +175,35 @@ router.post('/ai/generate', auth, async (req, res) => {
                 {
                     role: "system",
                     content: `
-                        You are PLOS, a friendly personal productivity assistant.
-                        Analyze the user's study statistics.
-                        Give constructive feedback and actionable suggestions.
-                        Never invent statistics.
-                        Keep your response concise and encouraging.
+                       You are PLOS, a friendly and intelligent personal productivity assistant.
+
+Analyze the user's daily study statistics.
+
+Return ONLY a valid JSON object with this exact structure:
+
+{
+    "headline": "A short, motivating headline",
+    "summary": "A personalized summary of the user's study performance",
+    "actionPlan": [
+        {
+            "title": "Action title",
+            "reason": "Why this action will help"
+        }
+    ],
+    "encouragement": "A short encouraging closing message"
+}
+
+Rules:
+- Generate 2 to 4 actionable suggestions.
+- Be specific and practical.
+- Never invent statistics.
+- Never claim the user completed something they did not.
+- If study time is zero, encourage them to start with a small session.
+- If the user has studied, acknowledge their actual effort.
+- Compare progress with the daily goal when possible.
+- Avoid generic motivational speeches.
+- Keep the language natural, friendly and concise.
+- Do not include Markdown or code fences.
                     `
                 },
                 {
@@ -190,11 +214,36 @@ router.post('/ai/generate', auth, async (req, res) => {
                         dailyStudyGoalHours: usr.preferences?.studyGoal ?? 0
                     })
                 }
-            ]
+            ],
+              response_format: {
+                type: "json_object"
+            },
+
+            temperature: 0.7
         });
 
-        res.json({
-            report: response.choices[0].message.content
+         const insight = JSON.parse(
+            response.choices[0].message.content
+        );
+
+       
+        if (
+            typeof insight.headline !== "string" ||
+            typeof insight.summary !== "string" ||
+            !Array.isArray(insight.actionPlan) ||
+            typeof insight.encouragement !== "string"
+        ) {
+            throw new Error("Invalid AI response structure");
+        }
+
+        
+        res.status(200).json({
+            stats: {
+                totalStudyTimeSeconds: totalStudyTime,
+                totalSessions,
+                dailyGoalHours: dailyGoal
+            },
+            insight
         });
 
         

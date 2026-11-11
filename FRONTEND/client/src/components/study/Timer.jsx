@@ -39,8 +39,6 @@ const timr = (startTime) => {
         setelap(prev=>prev+1000);
         settoal(prev => prev + 1);
 
-        console.log("Elapsed:", elapsed);
-        console.log("Formatted:", formatTime(elapsed));
 
     }, 1000);
 };

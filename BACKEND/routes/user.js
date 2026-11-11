@@ -145,7 +145,7 @@ router.post('/update',auth,async(req,res)=>{
 
 
 //send user statistics to AI
-router.post("/ai/generate", auth, async (req, res) => {
+router.post('/ai/generate', auth, async (req, res) => {
     const todayStart=new Date();
         todayStart.setHours(0,0,0,0);
         const tomorrowStart=new Date();

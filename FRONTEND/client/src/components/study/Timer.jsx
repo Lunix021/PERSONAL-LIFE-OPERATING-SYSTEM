@@ -32,14 +32,15 @@ const timr = (startTime) => {
     }
 
     clearInterval(intervalRef.current);
+    const elapsed = max(0,Date.now() - startTime);
+
+        setelap(elapsed);
 
     
     intervalRef.current = setInterval(() => {
 
-        const elapsed = Date.now() - startTime;
-
-        setelap(elapsed);
-
+        
+        setelap(prev=>prev+1000);
         settoal(prev => prev + 1);
 
         console.log("Elapsed:", elapsed);
@@ -68,10 +69,6 @@ try {
     console.log(res.data);
      const startTime = new Date(res.data.session.start).getTime();
 
-     console.log("SERVER START:", res.data.session.start);
-console.log("PARSED START:", startTime);
-console.log("BROWSER NOW:", Date.now());
-console.log("TIME DIFFERENCE:", Date.now() - startTime);
 
             if (!Number.isFinite(startTime)) {
                 console.error("Invalid session start:", res.data.session.start);

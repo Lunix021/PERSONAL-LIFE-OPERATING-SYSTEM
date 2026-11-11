@@ -32,10 +32,6 @@ const timr = (startTime) => {
     }
 
     clearInterval(intervalRef.current);
-    const elapsed = max(0,Date.now() - startTime);
-
-        setelap(elapsed);
-
     
     intervalRef.current = setInterval(() => {
 

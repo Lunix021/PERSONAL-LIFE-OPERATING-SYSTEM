@@ -116,11 +116,9 @@ const resetSession = async ()=>{
     const res=await api.patch('/study/session/end');
     console.log(res.data);
 
-     clearInterval(intervalRef.current); 
     
  setSessions(prev =>(prev.map((s)=>(s.active===true?res.data.session:s)))); 
-  setelap(0);
-   setcl(true);
+  
 
 
 
@@ -134,6 +132,10 @@ setdata(analytics.data);
     console.log(err.response.data);
 }
 
+setelap(0);
+   setcl(true);
+   
+     clearInterval(intervalRef.current); 
 
 
 }

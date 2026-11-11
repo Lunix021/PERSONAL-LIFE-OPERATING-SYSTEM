@@ -11,6 +11,7 @@ function Aiinsight() {
             setLoading(true);
             setError('');   
 
+            console.log("POSTINGGGGGGGGG");
             const res = await api.post('/user/ai/generate');
 
             console.log("AI RESPONSE:", res.data);

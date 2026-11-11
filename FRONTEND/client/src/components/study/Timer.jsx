@@ -64,7 +64,7 @@ try {
      const startTime = new Date(res.data.start).getTime();
 
             if (!Number.isFinite(startTime)) {
-                console.error("Invalid session start:", res.data.start);
+                console.error("Invalid session start:", res.data.newses.start);
                 return;
             }
 

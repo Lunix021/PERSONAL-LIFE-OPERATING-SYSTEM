@@ -40,6 +40,8 @@ const timr = (startTime) => {
 
             settoal(prev => prev + 1);
 
+            console.log(formatTime(elap));
+
         }, 1000);
     };
 
